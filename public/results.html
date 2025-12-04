@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Results - Student Management System</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <main class="page-shell">
+        <div class="page">
+            <header>
+                <div class="topbar">
+                    <div class="brand">
+                        <div class="logo">
+                            <img src="img/logo.svg" alt="SMS Logo" width="40" height="40" data-light="img/logo-light.svg" data-dark="img/logo.svg">
+                        </div>
+                        <div class="header-title">
+                            <h1>Results & Marks</h1>
+                            <p>Capture marks, grade automatically, share insights</p>
+                        </div>
+                    </div>
+                    <button class="hamburger" aria-label="Toggle navigation" aria-expanded="false">
+                        <span class="hamb-icon">☰</span>
+                    </button>
+                    <nav class="main-nav">
+                        <a href="/" class="nav-link">Students</a>
+                        <a href="/attendance.html" class="nav-link">Attendance</a>
+                        <a href="/results.html" class="nav-link active">Results</a>
+                        <a href="/fees.html" class="nav-link">Fees</a>
+                    </nav>
+                    <div class="top-actions">
+                        <div class="user-info" id="userInfo" style="display:none;">
+                            <span id="userName">User</span>
+                            <span class="role" id="userRole">role</span>
+                        </div>
+                        <button id="darkModeToggle" class="btn btn-ghost" type="button">🌙 Dark Mode</button>
+                        <button id="logoutBtn" class="btn btn-secondary" type="button">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <section>
+                <div class="section-header">
+                    <div class="section-title">
+                        <i class="fas fa-chart-line"></i>
+                        Performance overview
+                    </div>
+                </div>
+                <div class="stat-card-grid">
+                    <article class="stat-card">
+                        <span>Average marks</span>
+                        <strong id="avgMarks">--</strong>
+                        <small id="avgMarksSubject"></small>
+                    </article>
+                    <article class="stat-card">
+                        <span>Above 75%</span>
+                        <strong id="countAbove">0</strong>
+                        <small>High performers</small>
+                    </article>
+                    <article class="stat-card">
+                        <span>Below 40%</span>
+                        <strong id="countBelow">0</strong>
+                        <small>Needs attention</small>
+                    </article>
+                </div>
+            </section>
+
+            <section>
+                <div class="section-header">
+                    <div class="section-title">
+                        <i class="fas fa-plus-circle"></i>
+                        Add marks
+                    </div>
+                    <div class="filter-bar">
+                        <select id="subjectPreset">
+                            <option value="Math">Math</option>
+                            <option value="Physics">Physics</option>
+                            <option value="Chemistry">Chemistry</option>
+                            <option value="English">English</option>
+                            <option value="Computer Science">Computer Science</option>
+                        </select>
+                        <select id="termSelect">
+                            <option value="Term 1">Term 1</option>
+                            <option value="Term 2">Term 2</option>
+                            <option value="Final">Final</option>
+                        </select>
+                    </div>
+                </div>
+                <form id="resultForm" class="student-form">
+                    <div class="form-group">
+                        <label for="studentSelectRes">Student *</label>
+                        <select id="studentSelectRes" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="subjectInput">Subject *</label>
+                        <input id="subjectInput" required placeholder="e.g. Biology">
+                    </div>
+                    <div class="form-group">
+                        <label for="marks">Marks (0-100) *</label>
+                        <input id="marks" type="number" required min="0" max="100" step="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="termInput">Term / Exam *</label>
+                        <input id="termInput" required placeholder="Term 1">
+                    </div>
+                    <div class="form-group">
+                        <label for="remarks">Remarks</label>
+                        <textarea id="remarks" rows="1" placeholder="Excellent improvement"></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button class="btn btn-primary" type="submit">Save result</button>
+                    </div>
+                </form>
+            </section>
+
+            <section>
+                <div class="section-header">
+                    <div class="section-title">
+                        <i class="fas fa-table"></i>
+                        Results list
+                    </div>
+                    <div class="filter-bar">
+                        <select id="resultStudentFilter">
+                            <option value="">All students</option>
+                        </select>
+                        <select id="resultSubjectFilter">
+                            <option value="">All subjects</option>
+                        </select>
+                        <select id="resultTermFilter">
+                            <option value="">All terms</option>
+                            <option value="Term 1">Term 1</option>
+                            <option value="Term 2">Term 2</option>
+                            <option value="Final">Final</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table id="resultsTable" class="students-table">
+                        <thead>
+                            <tr>
+                                <th>Student</th>
+                                <th>Subject</th>
+                                <th>Term</th>
+                                <th>Marks</th>
+                                <th>Grade</th>
+                                <th>Remarks</th>
+                            </tr>
+                        </thead>
+                        <tbody id="resultsBody"></tbody>
+                    </table>
+                </div>
+                <div id="noResults" class="empty-state" style="display:none;">
+                    <i class="fas fa-file-circle-xmark"></i>
+                    <p>No results found for the selected filters.</p>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <div id="loadingSpinner" class="loading-spinner">
+        <div class="spinner"></div>
+    </div>
+    <div id="messageContainer" class="message-container"></div>
+
+    <script src="topbar.js"></script>
+    <script src="auth.js"></script>
+    <script src="results.js"></script>
+</body>
+</html>

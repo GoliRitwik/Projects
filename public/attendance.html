@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance - Student Management System</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <main class="page-shell">
+        <div class="page">
+            <header>
+                <div class="topbar">
+                    <div class="brand">
+                        <div class="logo">
+                            <img src="img/logo.svg" alt="SMS Logo" width="40" height="40" data-light="img/logo-light.svg" data-dark="img/logo.svg">
+                        </div>
+                        <div class="header-title">
+                            <h1>Attendance</h1>
+                            <p>Daily presence tracking & insights</p>
+                        </div>
+                    </div>
+                    <button class="hamburger" aria-label="Toggle navigation" aria-expanded="false">
+                        <span class="hamb-icon">☰</span>
+                    </button>
+                    <nav class="main-nav">
+                        <a href="/" class="nav-link">Students</a>
+                        <a href="/attendance.html" class="nav-link active">Attendance</a>
+                        <a href="/results.html" class="nav-link">Results</a>
+                        <a href="/fees.html" class="nav-link">Fees</a>
+                    </nav>
+                    <div class="top-actions">
+                        <div class="user-info" id="userInfo" style="display:none;">
+                            <span id="userName">User</span>
+                            <span class="role" id="userRole">role</span>
+                        </div>
+                        <button id="darkModeToggle" class="btn btn-ghost" type="button">🌙 Dark Mode</button>
+                        <button id="logoutBtn" class="btn btn-secondary" type="button">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <section>
+                <div class="section-header">
+                    <div class="section-title">
+                        <i class="fas fa-calendar-check"></i>
+                        Mark attendance
+                    </div>
+                    <div class="filter-bar">
+                        <input type="date" id="attDate" required>
+                        <button class="btn btn-secondary" id="toggleBulkMode" type="button">
+                            <i class="fas fa-users"></i> Switch to Bulk Mode
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Single Attendance Form -->
+                <form id="attendanceForm" class="student-form">
+                    <div class="form-group">
+                        <label for="studentSelect">Student *</label>
+                        <select id="studentSelect" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="statusSelect">Status *</label>
+                        <select id="statusSelect" required>
+                            <option value="present">Present</option>
+                            <option value="absent">Absent</option>
+                            <option value="late">Late</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="notes">Notes (optional)</label>
+                        <textarea id="notes" rows="1" placeholder="Late due to traffic, etc."></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Record attendance</button>
+                    </div>
+                </form>
+                
+                <!-- Bulk Attendance Form -->
+                <div id="bulkAttendanceSection" class="student-form" style="display: none;">
+                    <div class="form-group">
+                        <label>Select attendance status for each student:</label>
+                        <div id="bulkAttendanceList" class="bulk-attendance-list"></div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-primary" id="submitBulkAttendance">
+                            <i class="fas fa-check-double"></i> Submit Attendance for All
+                        </button>
+                        <button type="button" class="btn btn-secondary" id="cancelBulkMode">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <div class="section-header">
+                    <div class="section-title">
+                        <i class="fas fa-filter"></i>
+                        Filter records
+                    </div>
+                </div>
+                <div class="filter-bar">
+                    <input type="date" id="filterFrom" placeholder="From date">
+                    <input type="date" id="filterTo" placeholder="To date">
+                    <select id="filterCourse">
+                        <option value="">All courses</option>
+                    </select>
+                    <select id="filterStatus">
+                        <option value="">All status</option>
+                        <option value="present">Present</option>
+                        <option value="absent">Absent</option>
+                        <option value="late">Late</option>
+                    </select>
+                    <button class="btn btn-primary" id="applyFilters" type="button">Apply</button>
+                    <button class="btn btn-secondary" id="resetFilters" type="button">Reset</button>
+                </div>
+            </section>
+
+            <section>
+                <div class="section-header">
+                    <div class="section-title">
+                        <i class="fas fa-list-check"></i>
+                        Attendance history
+                    </div>
+                    <div class="stat-card-grid" style="max-width:420px;">
+                        <article class="stat-card">
+                            <span>Present %</span>
+                            <strong id="attPresentPercent">--%</strong>
+                        </article>
+                        <article class="stat-card">
+                            <span>Absences</span>
+                            <strong id="attAbsenceCount">0</strong>
+                        </article>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table id="attendanceTable" class="students-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Student</th>
+                                <th>Course</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                                <th>Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody id="attendanceBody"></tbody>
+                    </table>
+                </div>
+                <div id="noAttendance" class="empty-state" style="display:none;">
+                    <i class="fas fa-calendar-minus"></i>
+                    <p>No attendance records for the selected filters.</p>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <div id="loadingSpinner" class="loading-spinner">
+        <div class="spinner"></div>
+    </div>
+    <div id="messageContainer" class="message-container"></div>
+
+    <script src="topbar.js"></script>
+    <script src="auth.js"></script>
+    <script src="attendance.js"></script>
+</body>
+</html>

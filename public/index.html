@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Management System</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <main class="page-shell">
+        <div class="page">
+            <header>
+                <div class="topbar">
+                    <div class="brand">
+                        <div class="logo">
+                            <img src="img/logo.svg" alt="SMS Logo" width="40" height="40" data-light="img/logo-light.svg" data-dark="img/logo.svg">
+                        </div>
+                        <div class="header-title">
+                            <h1>Student Management System</h1>
+                            <p>Modern dashboard for daily academics</p>
+                        </div>
+                    </div>
+
+                    <button class="hamburger" aria-label="Toggle navigation" aria-expanded="false">
+                        <span class="hamb-icon">☰</span>
+                    </button>
+
+                    <nav class="main-nav">
+                        <a href="/" class="nav-link active">Students</a>
+                        <a href="/attendance.html" class="nav-link">Attendance</a>
+                        <a href="/results.html" class="nav-link">Results</a>
+                        <a href="/fees.html" class="nav-link">Fees</a>
+                    </nav>
+
+                    <div class="top-actions">
+                        <div class="user-info" id="userInfo" style="display:none;">
+                            <span id="userName">User</span>
+                            <span class="role" id="userRole">role</span>
+                        </div>
+                        <button id="darkModeToggle" class="btn btn-ghost" type="button" aria-label="Toggle theme">🌙 Dark Mode</button>
+                        <button id="logoutBtn" class="btn btn-secondary" type="button">
+                            <i class="fas fa-sign-out-alt"></i>
+                            Logout
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <section>
+                <div class="section-header">
+                    <div class="section-title">
+                        <i class="fas fa-chart-pie"></i>
+                        Dashboard snapshot
+                    </div>
+                    <button class="btn btn-secondary" id="refreshDashboard" type="button">
+                        <i class="fas fa-rotate"></i> Refresh
+                    </button>
+                </div>
+                <div class="stat-card-grid">
+                    <article class="stat-card">
+                        <span>Total students</span>
+                        <strong id="statTotalStudents">0</strong>
+                        <small id="statNewStudents"></small>
+                    </article>
+                    <article class="stat-card">
+                        <span>Invoices</span>
+                        <strong id="statInvoices">0</strong>
+                        <small id="statInvoicesStatus"></small>
+                    </article>
+                    <article class="stat-card">
+                        <span>Pending fees</span>
+                        <strong id="statPendingFees">$0.00</strong>
+                        <small id="statPendingDue"></small>
+                    </article>
+                    <article class="stat-card">
+                        <span>Today attendance</span>
+                        <strong id="statAttendance">--%</strong>
+                        <small id="statAttendanceLabel"></small>
+                    </article>
+                </div>
+            </section>
+
+            <section class="form-section">
+                <div class="section-header">
+                    <div class="section-title">
+                        <i class="fas fa-user-plus"></i>
+                        <span id="formTitle">Add new student</span>
+                    </div>
+                    <span class="text-muted">All fields are required</span>
+                </div>
+                <form id="studentForm" class="student-form">
+                    <div class="form-group">
+                        <label for="name">Full name *</label>
+                        <input type="text" id="name" name="name" required placeholder="e.g. Aditi Verma">
+                    </div>
+                    <div class="form-group">
+                        <label for="age">Age *</label>
+                        <input type="number" id="age" name="age" required min="5" max="150" placeholder="15">
+                    </div>
+                    <div class="form-group">
+                        <label for="course">Course / Class *</label>
+                        <input type="text" id="course" name="course" required placeholder="BSc Computer Science">
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email *</label>
+                        <input type="email" id="email" name="email" required placeholder="student@gmail.com">
+                        <small class="inline-error" id="emailError"></small>
+                    </div>
+                    <div class="form-group" id="photoUploadGroup">
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <i class="fas fa-camera"></i>
+                            Student Photo <span class="text-muted" style="font-weight: normal;">(Optional)</span>
+                        </label>
+                        <div style="display: flex; gap: 1rem; align-items: flex-start; padding: 1rem; background: var(--surface-200); border-radius: 8px; border: 1px solid var(--border-soft);">
+                            <img id="studentPhotoPreview" src="" alt="Student Photo" style="width: 100px; height: 100px; object-fit: cover; border-radius: 8px; border: 2px solid var(--border-soft); display: none; background: var(--surface-100);">
+                            <div style="flex: 1;">
+                                <input type="file" id="studentPhotoInput" accept="image/jpeg,image/jpg,image/png" style="margin-bottom: 0.5rem; width: 100%; padding: 0.5rem; border: 1px solid var(--border-soft); border-radius: 6px; background: var(--surface-100);" disabled>
+                                <small class="text-muted" style="display: block; margin-bottom: 0.5rem;">Accepted formats: JPG or PNG | Maximum size: 2MB</small>
+                                <button type="button" id="uploadPhotoBtn" class="btn btn-secondary" disabled>
+                                    <i class="fas fa-upload"></i> Upload Photo
+                                </button>
+                                <small class="text-muted" style="display: block; margin-top: 0.5rem; font-style: italic;" id="photoUploadHint">
+                                    <i class="fas fa-info-circle"></i> Create the student first, then you can upload a photo
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Save student
+                        </button>
+                        <button type="button" id="cancelEdit" class="btn btn-secondary" style="display:none;">
+                            Cancel edit
+                        </button>
+                        <button type="button" id="downloadIdCardBtn" class="btn btn-secondary" style="display:none;">
+                            <i class="fas fa-id-card"></i> Download ID Card
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+            <section>
+                <div class="section-header">
+                    <div class="section-title">
+                        <i class="fas fa-users"></i>
+                        Students
+                    </div>
+                    <div class="student-count">
+                        <span id="studentCount">0</span> students
+                    </div>
+                </div>
+                <div class="search-container">
+                    <input type="text" id="searchInput" placeholder="Search by name or email">
+                    <select id="courseFilter">
+                        <option value="">All courses</option>
+                    </select>
+                    <button id="searchBtn" class="btn btn-primary" type="button">
+                        <i class="fas fa-search"></i> Search
+                    </button>
+                    <button id="clearSearch" class="btn btn-secondary" type="button">
+                        Clear
+                    </button>
+                </div>
+
+                <div class="table-container" aria-live="polite">
+                    <table id="studentsTable" class="students-table">
+                        <thead>
+                            <tr>
+                                <th>Photo</th>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Age</th>
+                                <th>Course</th>
+                                <th>Email</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentsTableBody"></tbody>
+                    </table>
+                </div>
+                <div id="noStudents" class="empty-state" style="display:none;">
+                    <i class="fas fa-user-friends"></i>
+                    <p>No students available yet. Add the first student to get started.</p>
+                </div>
+            </section>
+
+        <section class="insights-section">
+            <div class="section-header">
+                <div class="section-title">
+                    <i class="fas fa-lightbulb"></i>
+                    Insights & Performance
+                </div>
+            </div>
+            <div class="insights-grid">
+                <article class="card at-risk-card">
+                    <div class="card-title-row">
+                        <h3>At-Risk Students</h3>
+                        <span class="badge badge-danger" id="atRiskCount">0</span>
+                    </div>
+                    <ul id="atRiskList" class="at-risk-list"></ul>
+                    <p class="muted-text" id="noAtRisk" style="display:none;">All clear! No students currently meet the at-risk criteria.</p>
+                </article>
+                <article class="card heatmap-card">
+                    <div class="card-title-row">
+                        <h3>Class Performance Heatmap</h3>
+                    </div>
+                    <div class="heatmap-legend">
+                        <span>Low</span>
+                        <div class="heatmap-gradient"></div>
+                        <span>High</span>
+                    </div>
+                    <div class="heatmap-scroll">
+                        <div id="performanceHeatmap" class="heatmap-grid"></div>
+                    </div>
+                    <p class="muted-text" id="noHeatmap" style="display:none;">Record more marks to see the heatmap.</p>
+                </article>
+            </div>
+        </section>
+        </div>
+    </main>
+
+    <div id="loadingSpinner" class="loading-spinner" role="alert" aria-live="assertive">
+        <div class="spinner"></div>
+    </div>
+    <div id="messageContainer" class="message-container" aria-live="assertive"></div>
+    <div id="confirmModal" class="modal" aria-hidden="true">
+        <div class="modal-content">
+            <h3><i class="fas fa-exclamation-triangle"></i> Confirm action</h3>
+            <p id="confirmMessage">Are you sure?</p>
+            <div class="modal-actions">
+                <button id="confirmYes" class="btn btn-danger" type="button">Yes, proceed</button>
+                <button id="confirmNo" class="btn btn-secondary" type="button">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="topbar.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

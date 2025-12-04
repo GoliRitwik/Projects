@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fees & Payments - Student Management System</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <main class="page-shell">
+        <div class="page">
+            <header>
+                <div class="topbar">
+                    <div class="brand">
+                        <div class="logo">
+                            <img src="img/logo.svg" alt="SMS Logo" width="40" height="40" data-light="img/logo-light.svg" data-dark="img/logo.svg">
+                        </div>
+                        <div class="header-title">
+                            <h1>Fees & Payments</h1>
+                            <p>Invoices, payment history and quick settlement</p>
+                        </div>
+                    </div>
+                    <button class="hamburger" aria-label="Toggle navigation" aria-expanded="false">
+                        <span class="hamb-icon">☰</span>
+                    </button>
+                    <nav class="main-nav">
+                        <a href="/" class="nav-link">Students</a>
+                        <a href="/attendance.html" class="nav-link">Attendance</a>
+                        <a href="/results.html" class="nav-link">Results</a>
+                        <a href="/fees.html" class="nav-link active">Fees</a>
+                    </nav>
+                    <div class="top-actions">
+                        <div class="user-info" id="userInfo" style="display:none;">
+                            <span id="userName">User</span>
+                            <span class="role" id="userRole">role</span>
+                        </div>
+                        <button id="darkModeToggle" class="btn btn-ghost" type="button">🌙 Dark Mode</button>
+                        <button id="logoutBtn" class="btn btn-secondary" type="button">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <section>
+                <div class="section-header">
+                    <div class="section-title">
+                        <i class="fas fa-file-invoice-dollar"></i>
+                        Create invoice
+                    </div>
+                </div>
+                <form id="feeForm" class="student-form">
+                    <div class="form-group">
+                        <label for="studentSelectFee">Student *</label>
+                        <select id="studentSelectFee" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="amount">Amount (₹) *</label>
+                        <input id="amount" type="number" min="0" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="dueDate">Due date *</label>
+                        <input id="dueDate" type="date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="description">Description</label>
+                        <textarea id="description" rows="1" placeholder="Tuition fees - Term 1"></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button class="btn btn-primary" type="submit">Create invoice</button>
+                    </div>
+                </form>
+            </section>
+
+            <section>
+                <div class="section-header">
+                    <div class="section-title">
+                        <i class="fas fa-credit-card"></i>
+                        Record payment
+                    </div>
+                </div>
+                <form id="paymentForm" class="student-form">
+                    <div class="form-group">
+                        <label for="feeSelect">Invoice *</label>
+                        <select id="feeSelect" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="payAmount">Amount paid *</label>
+                        <input id="payAmount" type="number" min="0" step="0.01" required>
+                        <small class="inline-error" id="paymentError"></small>
+                    </div>
+                    <div class="form-group">
+                        <label>Payment method</label>
+                        <div class="filter-bar" role="radiogroup" aria-label="Payment method">
+                            <label><input type="radio" name="method" value="cash" checked> Cash</label>
+                            <label><input type="radio" name="method" value="card"> Card</label>
+                            <label><input type="radio" name="method" value="online"> Online</label>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button class="btn btn-success" type="submit">Record payment</button>
+                    </div>
+                </form>
+            </section>
+
+            <section>
+                <div class="section-header">
+                    <div class="section-title">
+                        <i class="fas fa-table"></i>
+                        Invoices
+                    </div>
+                    <div class="filter-bar">
+                        <select id="feeStatusFilter">
+                            <option value="">All status</option>
+                            <option value="pending">Pending</option>
+                            <option value="paid">Paid</option>
+                            <option value="overdue">Overdue</option>
+                        </select>
+                        <button class="btn btn-secondary" id="exportFees" type="button">
+                            <i class="fas fa-download"></i> Export CSV
+                        </button>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table id="feesTable" class="students-table invoice-table">
+                        <thead>
+                            <tr>
+                                <th>Invoice</th>
+                                <th>Student</th>
+                                <th>Amount</th>
+                                <th>Due date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="feesBody"></tbody>
+                    </table>
+                </div>
+                <div id="noFees" class="empty-state" style="display:none;">
+                    <i class="fas fa-receipt"></i>
+                    <p>No invoices yet. Create one using the form above.</p>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <div id="loadingSpinner" class="loading-spinner">
+        <div class="spinner"></div>
+    </div>
+    <div id="messageContainer" class="message-container"></div>
+
+    <!-- jsPDF UMD build for client-side PDF generation - Multiple CDN fallbacks -->
+    <script>
+      // Try to load jsPDF with multiple fallback CDNs
+      (function() {
+        const cdnSources = [
+          'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
+          'https://unpkg.com/jspdf@2.5.1/dist/jspdf.umd.min.js',
+          'https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js'
+        ];
+        
+        let currentIndex = 0;
+        
+        function loadScript(src) {
+          return new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = src;
+            script.async = true;
+            script.crossOrigin = 'anonymous';
+            script.onload = () => {
+              // Wait a bit for jsPDF to initialize
+              setTimeout(() => {
+                if (window.jspdf && window.jspdf.jsPDF) {
+                  console.log('jsPDF loaded successfully from:', src);
+                  resolve(true);
+                } else if (window.jsPDF) {
+                  console.log('jsPDF loaded successfully from:', src);
+                  resolve(true);
+                } else {
+                  reject(new Error('jsPDF not accessible'));
+                }
+              }, 100);
+            };
+            script.onerror = () => {
+              console.warn('Failed to load jsPDF from:', src);
+              reject(new Error('Failed to load'));
+            };
+            document.head.appendChild(script);
+          });
+        }
+        
+        function tryNextCDN() {
+          if (currentIndex >= cdnSources.length) {
+            console.error('All jsPDF CDN sources failed to load');
+            return;
+          }
+          
+          loadScript(cdnSources[currentIndex])
+            .catch(() => {
+              currentIndex++;
+              if (currentIndex < cdnSources.length) {
+                tryNextCDN();
+              }
+            });
+        }
+        
+        // Start loading from first CDN
+        tryNextCDN();
+      })();
+    </script>
+
+    <script src="topbar.js"></script>
+    <script src="auth.js"></script>
+    <script src="fees.js"></script>
+</body>
+</html>
